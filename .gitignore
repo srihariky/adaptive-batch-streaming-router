@@ -1,0 +1,13 @@
+__pycache__/
+*.py[cod]
+.venv/
+env/
+venv/
+data/results/*
+!data/results/.gitkeep
+data/results/checkpoint*
+*.parquet
+*.crc
+.DS_Store
+.vscode/
+*.log
