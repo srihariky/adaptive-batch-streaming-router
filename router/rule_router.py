@@ -1,3 +1,4 @@
+import os
 import sys
 import time
 from pyspark.sql import SparkSession
@@ -30,7 +31,7 @@ print("Starting System 4: Rule-Based Adaptive Router Pipeline...")
 raw_df = spark.readStream \
     .format("kafka") \
     .option("kafka.bootstrap.servers", "localhost:9092") \
-    .option("subscribe", "raw-taxi-events") \
+    .option("subscribe", os.environ['TOPIC']) \
     .option("startingOffsets", "earliest") \
     .load()
 
@@ -49,8 +50,8 @@ batch_branch = processed_df.filter(col("priority") == 0)
 q_stream = stream_branch.writeStream \
     .outputMode("append") \
     .format("parquet") \
-    .option("path", "./data/results/router_stream_out") \
-    .option("checkpointLocation", "./data/results/checkpoint_router_stream") \
+    .option("path", os.environ["RUN_DIR"] + "/router_stream_out") \
+    .option("checkpointLocation", os.environ["RUN_DIR"] + "/checkpoint_router_stream") \
     .trigger(processingTime="2 seconds") \
     .start()
 
@@ -58,8 +59,8 @@ q_stream = stream_branch.writeStream \
 q_batch = batch_branch.writeStream \
     .outputMode("append") \
     .format("parquet") \
-    .option("path", "./data/results/router_batch_out") \
-    .option("checkpointLocation", "./data/results/checkpoint_router_batch") \
+    .option("path", os.environ["RUN_DIR"] + "/router_batch_out") \
+    .option("checkpointLocation", os.environ["RUN_DIR"] + "/checkpoint_router_batch") \
     .trigger(processingTime="30 seconds") \
     .start()
 

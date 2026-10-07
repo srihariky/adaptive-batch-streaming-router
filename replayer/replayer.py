@@ -1,3 +1,4 @@
+import os
 import time
 import json
 import random
@@ -69,7 +70,7 @@ for phase in phases:
                 "event_creation_time": time.time()  # Timestamp 1
             }
             
-            producer.send('raw-taxi-events', value=payload)
+            producer.send(os.environ['TOPIC'], value=payload)
         
         elapsed = time.time() - batch_start
         sleep_time = 0.1 - elapsed
@@ -80,4 +81,4 @@ for phase in phases:
     print(f"Phase {p_name} Complete: Sent {sent_in_phase:,} records in {actual_phase_time:.2f}s (Actual Rate: {sent_in_phase/actual_phase_time:.0f} rec/s)")
 
 producer.flush()
-print(f"\nReplayer Finished! Total {idx:,} records streamed to Kafka 'raw-taxi-events' in {time.time()-global_start:.2f}s.")
+print(f"\nReplayer Finished! Total {idx:,} records streamed to Kafka os.environ['TOPIC'] in {time.time()-global_start:.2f}s.")

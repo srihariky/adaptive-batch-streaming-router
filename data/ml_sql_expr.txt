@@ -1,0 +1,1 @@
+CASE WHEN fare_amount <= 35.00 THEN CASE WHEN passenger_count <= 3.50 THEN CASE WHEN trip_distance <= 10.05 THEN 0 ELSE 1 END ELSE CASE WHEN fare_amount <= 20.00 THEN 0 ELSE 1 END END ELSE 1 END

@@ -1,3 +1,4 @@
+import os
 import sys
 import time
 from pyspark.sql import SparkSession
@@ -31,7 +32,7 @@ print("Starting System 1: Stream-Only Baseline Pipeline...")
 raw_df = spark.readStream \
     .format("kafka") \
     .option("kafka.bootstrap.servers", "localhost:9092") \
-    .option("subscribe", "raw-taxi-events") \
+    .option("subscribe", os.environ['TOPIC']) \
     .option("startingOffsets", "earliest") \
     .load()
 
@@ -46,8 +47,8 @@ processed_df = parsed_df \
 query = processed_df.writeStream \
     .outputMode("append") \
     .format("parquet") \
-    .option("path", "./data/results/stream_only_out") \
-    .option("checkpointLocation", "./data/results/checkpoint_stream_only") \
+    .option("path", os.environ["RUN_DIR"] + "/stream_only_out") \
+    .option("checkpointLocation", os.environ["RUN_DIR"] + "/checkpoint_stream_only") \
     .trigger(processingTime="2 seconds") \
     .start()
 

@@ -1,3 +1,4 @@
+import os
 import sys
 import time
 from pyspark.sql import SparkSession
@@ -30,7 +31,7 @@ print("Starting System 3: Fixed Lambda Baseline Pipeline...")
 raw_df = spark.readStream \
     .format("kafka") \
     .option("kafka.bootstrap.servers", "localhost:9092") \
-    .option("subscribe", "raw-taxi-events") \
+    .option("subscribe", os.environ['TOPIC']) \
     .option("startingOffsets", "earliest") \
     .load()
 
@@ -44,8 +45,8 @@ processed_df = parsed_df \
 query_stream = processed_df.writeStream \
     .outputMode("append") \
     .format("parquet") \
-    .option("path", "./data/results/lambda_stream_out") \
-    .option("checkpointLocation", "./data/results/checkpoint_lambda_stream") \
+    .option("path", os.environ["RUN_DIR"] + "/lambda_stream_out") \
+    .option("checkpointLocation", os.environ["RUN_DIR"] + "/checkpoint_lambda_stream") \
     .trigger(processingTime="2 seconds") \
     .start()
 
@@ -53,8 +54,8 @@ query_stream = processed_df.writeStream \
 query_batch = processed_df.writeStream \
     .outputMode("append") \
     .format("parquet") \
-    .option("path", "./data/results/lambda_batch_out") \
-    .option("checkpointLocation", "./data/results/checkpoint_lambda_batch") \
+    .option("path", os.environ["RUN_DIR"] + "/lambda_batch_out") \
+    .option("checkpointLocation", os.environ["RUN_DIR"] + "/checkpoint_lambda_batch") \
     .trigger(processingTime="30 seconds") \
     .start()
 
