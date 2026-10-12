@@ -1,24 +1,37 @@
 import glob
+import os
+import sys
 import pandas as pd
 import numpy as np
 from scipy.stats import mannwhitneyu
 
+if hasattr(sys.stdout, "reconfigure"):
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
 print("==========================================================================")
-print("🧪 STATISTICAL SIGNIFICANCE TESTING (MANN-WHITNEY U TEST)")
+print("[STATISTICAL SIGNIFICANCE TESTING: MANN-WHITNEY U TEST]")
 print("==========================================================================")
 
+import sys
+base = sys.argv[1] if len(sys.argv) > 1 else ("data/final_run" if os.path.exists("data/final_run") else "data/results")
+
 paths = {
-    "Stream-Only": "data/results/stream_only_out/*.parquet",
-    "Batch-Only": "data/results/batch_only_out/*.parquet",
-    "Fixed-Lambda": "data/results/lambda_stream_out/*.parquet",
-    "Rule-Router": "data/results/router_stream_out/*.parquet",
-    "ML-Router": "data/results/ml_router_stream_out/*.parquet"
+    "Stream-Only": [f"{base}/*_r*/stream_only_out/*.parquet", f"{base}/stream_only_out/*.parquet"],
+    "Batch-Only": [f"{base}/*_r*/batch_only_out/*.parquet", f"{base}/batch_only_out/*.parquet"],
+    "Fixed-Lambda": [f"{base}/*_r*/lambda_stream_out/*.parquet", f"{base}/lambda_stream_out/*.parquet"],
+    "Rule-Router": [f"{base}/*_r*/router_stream_out/*.parquet", f"{base}/router_stream_out/*.parquet"],
+    "ML-Router": [f"{base}/*_r*/ml_router_stream_out/*.parquet", f"{base}/ml_router_stream_out/*.parquet"],
 }
 
 datasets = {}
 
-for name, pattern in paths.items():
-    files = glob.glob(pattern)
+for name, pattern_list in paths.items():
+    files = []
+    for pat in pattern_list:
+        files.extend(glob.glob(pat))
     if files:
         dfs = [pd.read_parquet(f) for f in files]
         df = pd.concat(dfs, ignore_index=True)
@@ -27,11 +40,11 @@ for name, pattern in paths.items():
             latencies = (df[time_col] - df['event_creation_time']) * 1000
             datasets[name] = latencies.dropna().values
 
-if "Rule-Router" not in datasets:
-    print("❌ Error: Could not find Rule-Router results for comparison.")
+baseline_name = "ML-Router" if "ML-Router" in datasets else ("Rule-Router" if "Rule-Router" in datasets else None)
+if not baseline_name:
+    print(f"Error: Could not find ML-Router or Rule-Router results in {base}.")
     exit()
 
-baseline_name = "Rule-Router"
 baseline_data = datasets[baseline_name]
 
 print(f"Comparing Baseline: [{baseline_name}] (N = {len(baseline_data):,}) against other architectures:\n")
@@ -64,7 +77,7 @@ df_res = pd.DataFrame(results)
 print(df_res.to_string(index=False))
 
 print("\n==========================================================================")
-print("📌 DISSERTATION INTERPRETATION NOTE:")
-print("p < 0.001 indicates that the latency differences between the Rule-Based Router")
+print("[DISSERTATION INTERPRETATION NOTE]:")
+print("p < 0.001 indicates that the latency differences between the ML/Rule Router")
 print("and the baselines are statistically significant and not due to random sample noise.")
 print("==========================================================================")

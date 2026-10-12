@@ -1,0 +1,6 @@
+system_label,Urgent_Count,p50_ms,p95_ms,p99_ms,SLA_Met_Pct
+Batch-Only,109465,15594.1,29197.2,30902.6,4.1
+Fixed-Lambda,218930,2236.1,27660.3,30470.9,51.4
+ML Router (Adaptive),109465,1270.0,2171.4,2307.8,99.9
+Rule Router (Adaptive),109465,1460.3,22415.7,29603.0,84.8
+Stream-Only (Kappa),109345,1566.1,2493.4,4721.5,98.2

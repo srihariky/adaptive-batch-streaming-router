@@ -1,0 +1,5 @@
+timestamp,elapsed_sec,label,system_cpu_pct,system_mem_used_mb,system_mem_total_mb,system_mem_pct,proc_cpu_pct,proc_mem_rss_mb,proc_mem_vms_mb
+1791816161.249,0.0,Standalone Test,0.0,1077.55,9948.36,10.8,0.0,110.21,746.64
+1791816161.751,0.5,Standalone Test,0.0,1077.57,9948.36,10.8,0.0,110.22,746.64
+1791816162.253,1.0,Standalone Test,0.2,1077.56,9948.36,10.8,0.0,110.23,746.64
+1791816162.755,1.51,Standalone Test,0.0,1077.56,9948.36,10.8,0.0,110.25,746.64
